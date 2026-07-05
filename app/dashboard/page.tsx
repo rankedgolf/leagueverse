@@ -41,9 +41,12 @@ export default async function DashboardPage() {
 
         <div className="mt-10 rounded-2xl border border-slate-800 bg-slate-900 p-8">
           <h2 className="text-2xl font-bold">Your leagues</h2>
-          <p className="mt-2 text-slate-400">
-            League creation is coming next. This dashboard is now connected to Supabase Auth.
-          </p>
+         <a
+  href="/leagues/new"
+  className="mt-6 inline-block rounded-lg bg-white px-4 py-3 font-semibold text-slate-950"
+>
+  Create League
+</a>
         </div>
       </div>
     </main>
