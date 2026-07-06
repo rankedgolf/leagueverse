@@ -32,7 +32,7 @@ export default async function TeamsPage({ params }: TeamsPageProps) {
       </div>
 
       <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {teams && teams.length > 0 ? (
+        {teams.length > 0 ? (
           teams.map((team) => (
             <Link
               key={team.id}
