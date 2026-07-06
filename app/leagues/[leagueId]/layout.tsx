@@ -32,9 +32,18 @@ export default async function LeagueLayout({
     .eq("user_id", user.id)
     .single();
 
-  if (!membership) {
-    notFound();
-  }
+ if (!membership) {
+  return (
+    <main className="min-h-screen bg-slate-950 p-10 text-white">
+      <h1 className="text-3xl font-bold">Membership Debug</h1>
+      <p className="mt-4">User ID: {user.id}</p>
+      <p>League ID from URL: {leagueId}</p>
+      <p className="mt-4 text-red-400">
+        No league_members row found for this user and league.
+      </p>
+    </main>
+  );
+}
 
   const { data: league } = await supabase
     .from("leagues")

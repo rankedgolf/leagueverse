@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/server";
+import { TeamService } from "@/features/teams/services/team-service";
 
 type TeamsPageProps = {
   params: Promise<{
@@ -10,25 +10,16 @@ type TeamsPageProps = {
 export default async function TeamsPage({ params }: TeamsPageProps) {
   const { leagueId } = await params;
 
-  const supabase = await createClient();
-
-  const { data: teams } = await supabase
-    .from("teams")
-    .select("id,name,nickname,abbreviation,created_at")
-    .eq("league_id", leagueId)
-    .eq("is_active", true)
-    .order("name");
+  const teams = await TeamService.getLeagueTeams(leagueId);
 
   return (
     <div className="mx-auto max-w-6xl">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="text-sm uppercase tracking-wide text-slate-400">
-            Teams
-          </p>
+          <p className="text-sm uppercase tracking-wide text-slate-400">Teams</p>
           <h1 className="mt-2 text-4xl font-bold">League Franchises</h1>
           <p className="mt-3 text-slate-400">
-            Every team is a franchise with its own story, contracts, roster, and legacy.
+            Manage every franchise in this LeagueVerse.
           </p>
         </div>
 

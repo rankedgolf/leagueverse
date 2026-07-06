@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getLeagueTeams } from "@/features/teams/lib/get-league-teams";
 
 export async function getLeagueDashboard(leagueId: string, userId: string) {
   const supabase = await createClient();
@@ -32,12 +33,7 @@ export async function getLeagueDashboard(leagueId: string, userId: string) {
         .single()
     : { data: null };
 
-  const { data: teams } = await supabase
-    .from("teams")
-    .select("id,name,nickname,abbreviation,logo_url")
-    .eq("league_id", leagueId)
-    .eq("is_active", true)
-    .order("name");
+  const teams = await getLeagueTeams(leagueId);
 
   const { count: memberCount } = await supabase
     .from("league_members")
