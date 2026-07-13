@@ -2,12 +2,6 @@ import type { StandingDTO } from "@/features/standings/dto/standing-dto";
 import { StandingRepository } from "@/features/standings/repositories/standing-repository";
 import { TeamRepository } from "@/features/teams/repositories/team-repository";
 
-type TeamRow = Awaited<ReturnType<typeof TeamRepository.getByLeague>>[number];
-
-type StandingRow = Awaited<
-  ReturnType<typeof StandingRepository.getByLeagueAndSeason>
->[number];
-
 export const StandingService = {
   async getLeagueStandings(
     leagueId: string,
@@ -18,9 +12,9 @@ export const StandingService = {
       StandingRepository.getByLeagueAndSeason(leagueId, seasonId),
     ]);
 
-    return teams.map((team: TeamRow) => {
+    return teams.map((team) => {
       const standing = standings.find(
-        (row: StandingRow) => row.team_id === team.id
+        (row) => row.team_id === team.id
       );
 
       return {
