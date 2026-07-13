@@ -24,6 +24,7 @@ export const LeagueService = {
       : null;
 
     const teams = await TeamService.getLeagueTeams(leagueId);
+    const ownersAssigned = teams.filter((team) => team.owner).length;
     const memberCount = await LeagueRepository.getMemberCount(leagueId);
     const hasSalaryCapSettings =
       await LeagueRepository.hasSalaryCapSettings(
@@ -50,6 +51,7 @@ export const LeagueService = {
       stats: {
         teams: teams.length,
         members: memberCount,
+        ownersAssigned,
       },
 
       checklist: {

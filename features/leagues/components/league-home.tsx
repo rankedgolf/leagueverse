@@ -29,6 +29,11 @@ export function LeagueHome({ dashboard }: Props) {
         />
 
         <StatCard
+  title="Owners Assigned"
+  value={`${dashboard.stats.ownersAssigned} / ${dashboard.stats.teams}`}
+/>
+
+        <StatCard
           title="Members"
           value={dashboard.stats.members}
         />

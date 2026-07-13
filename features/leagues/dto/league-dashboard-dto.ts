@@ -13,6 +13,7 @@ export type LeagueDashboardDTO = {
   stats: {
     teams: number;
     members: number;
+    ownersAssigned: number;
   };
 
   checklist: {

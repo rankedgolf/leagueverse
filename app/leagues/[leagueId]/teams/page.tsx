@@ -46,6 +46,10 @@ export default async function TeamsPage({ params }: TeamsPageProps) {
               <p className="mt-2 text-slate-400">
                 {team.nickname || "No nickname set"}
               </p>
+              <p className="mt-4 text-sm text-slate-400">Owner</p>
+<p className="font-semibold text-white">
+  {team.owner?.name || "Unassigned"}
+</p>
             </Link>
           ))
         ) : (

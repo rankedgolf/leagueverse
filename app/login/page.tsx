@@ -1,7 +1,15 @@
 import Link from "next/link";
 import { login } from "@/features/auth/actions/auth-actions";
 
-export default function LoginPage() {
+type LoginPageProps = {
+  searchParams: Promise<{
+    invite?: string;
+  }>;
+};
+
+export default async function LoginPage({ searchParams }: LoginPageProps) {
+  const { invite } = await searchParams;
+
   return (
     <main className="min-h-screen flex items-center justify-center bg-slate-950 px-6">
       <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-xl">
@@ -11,6 +19,8 @@ export default function LoginPage() {
         </p>
 
         <form action={login} className="mt-8 space-y-4">
+          {invite && <input type="hidden" name="invite" value={invite} />}
+
           <input
             name="email"
             type="email"
@@ -37,7 +47,10 @@ export default function LoginPage() {
 
         <p className="mt-6 text-sm text-slate-600">
           Need an account?{" "}
-          <Link href="/signup" className="font-semibold text-slate-900">
+          <Link
+            href={invite ? `/signup?invite=${invite}` : "/signup"}
+            className="font-semibold text-slate-900"
+          >
             Sign up
           </Link>
         </p>

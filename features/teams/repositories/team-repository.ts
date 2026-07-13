@@ -1,31 +1,40 @@
 import { createClient } from "@/lib/supabase/server";
 
 export const TeamRepository = {
-  async getByLeague(leagueId: string) {
-    const supabase = await createClient();
+ async getByLeague(leagueId: string) {
+  const supabase = await createClient();
 
-    const { data, error } = await supabase
-      .from("teams")
-      .select(
-        `
-        id,
-        league_id,
-        name,
-        nickname,
-        abbreviation,
-        logo_url,
-        primary_color,
-        secondary_color,
-        created_at
+  const { data, error } = await supabase
+    .from("teams")
+    .select(
       `
+      id,
+      league_id,
+      name,
+      nickname,
+      abbreviation,
+      logo_url,
+      primary_color,
+      secondary_color,
+      owner_member_id,
+      created_at,
+      league_members (
+        id,
+        profiles (
+          display_name,
+          email
+        )
       )
-      .eq("league_id", leagueId)
-      .order("name");
+      `
+    )
+    .eq("league_id", leagueId)
+    .order("name");
 
-    if (error) {
-      throw new Error(error.message);
-    }
+  if (error) {
+    throw new Error(error.message);
+  }
 
-    return data ?? [];
-  },
+  return data ?? [];
+},
+  
 };

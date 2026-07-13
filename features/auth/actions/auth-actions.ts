@@ -9,6 +9,7 @@ export async function signUp(formData: FormData) {
   const email = String(formData.get("email") || "");
   const password = String(formData.get("password") || "");
   const displayName = String(formData.get("display_name") || "");
+  const invite = String(formData.get("invite") || "");
 
   if (!email || !password || !displayName) {
     throw new Error("Email, password, and display name are required.");
@@ -36,7 +37,11 @@ export async function signUp(formData: FormData) {
     });
   }
 
-  redirect("/dashboard");
+  if (invite) {
+    redirect(`/check-email?invite=${invite}`);
+  }
+
+  redirect("/check-email");
 }
 
 export async function login(formData: FormData) {
@@ -44,6 +49,7 @@ export async function login(formData: FormData) {
 
   const email = String(formData.get("email") || "");
   const password = String(formData.get("password") || "");
+  const invite = String(formData.get("invite") || "");
 
   if (!email || !password) {
     throw new Error("Email and password are required.");
@@ -56,6 +62,10 @@ export async function login(formData: FormData) {
 
   if (error) {
     throw new Error(error.message);
+  }
+
+  if (invite) {
+    redirect(`/invite/${invite}`);
   }
 
   redirect("/dashboard");
