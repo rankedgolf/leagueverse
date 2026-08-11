@@ -9,6 +9,7 @@ type LeagueShellProps = {
 
 const navItems = [
   { label: "Overview", href: "" },
+  { label: "Import League", href: "import" },
   { label: "Teams", href: "teams" },
 { label: "Rosters", href: "rosters" }, 
 { label: "Players", href: "players" },
@@ -16,10 +17,12 @@ const navItems = [
   { label: "Standings", href: "standings" },
   { label: "Contracts", href: "contracts" },
   { label: "Salary Cap", href: "salary-cap" },
+  { label: "Free Agency", href: "free-agency" },
   { label: "Transactions", href: "transactions" },
   { label: "Draft", href: "draft" },
   { label: "History", href: "history" },
   { label: "AI News", href: "news" },
+  { label: "Integrations", href: "integrations" },
   { label: "Settings", href: "settings" },
 ];
 

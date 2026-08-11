@@ -1,8 +1,14 @@
 import { createClient } from "@/lib/supabase/server";
+import type { ServerSupabaseClient } from "@/lib/supabase/types";
 
 export const StandingRepository = {
-  async getByLeagueAndSeason(leagueId: string, seasonId: string) {
-    const supabase = await createClient();
+  async getByLeagueAndSeason(
+  leagueId: string,
+  seasonId: string,
+  client?: ServerSupabaseClient,
+) {
+  const supabase =
+    client ?? (await createClient());
 
     const { data, error } = await supabase
       .from("standings")

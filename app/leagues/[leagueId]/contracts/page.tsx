@@ -1,4 +1,5 @@
 import { ContractService } from "@/features/contracts/services/contract-service";
+import { ContractImportForm } from "@/features/contracts/components/contract-import-form";
 
 type ContractsPageProps = {
   params: Promise<{
@@ -30,6 +31,8 @@ export default async function ContractsPage({
           commitments.
         </p>
       </div>
+
+      <ContractImportForm leagueId={leagueId} />
 
       <div className="overflow-hidden rounded-lg border border-slate-800 bg-slate-950">
         <table className="w-full text-sm">

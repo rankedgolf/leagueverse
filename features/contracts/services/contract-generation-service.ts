@@ -4,6 +4,16 @@ import { ContractSettingsService } from "@/features/contracts/services/contract-
 import { ContractValidationService } from "@/features/contracts/services/contract-validation-service";
 import { SeasonService } from "@/features/seasons/services/season-service";
 
+export type ContractSource =
+  | "manual"
+  | "auction_import"
+  | "spreadsheet_import"
+  | "platform_import"
+  | "free_agency"
+  | "rookie_draft"
+  | "extension"
+  | "system";
+
 export type GenerateContractInput = {
   leagueId: string;
   teamId: string;
@@ -12,7 +22,7 @@ export type GenerateContractInput = {
   startingSalary: number;
   lengthYears: number;
   contractType?: string;
-  source?: string;
+  source?: ContractSource;
   guaranteedValue?: number;
   bonusPerYear?: number;
   notes?: string | null;
@@ -101,6 +111,7 @@ export const ContractGenerationService = {
         p_league_player_id: input.leaguePlayerId,
         p_contract_type: input.contractType ?? "standard",
         p_status: "active",
+        p_source: input.source ?? "manual",
         p_signed_at: new Date().toISOString().slice(0, 10),
         p_starts_season_id: startSeason.id,
         p_ends_season_id: endSeason.id,
@@ -120,7 +131,7 @@ export const ContractGenerationService = {
     }
 
     return {
-      contractId,
+      contractId: String(contractId),
       totalValue: schedule.totalValue,
       contractYearCount: contractYears.length,
     };

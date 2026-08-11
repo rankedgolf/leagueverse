@@ -1,16 +1,26 @@
 import type { StandingDTO } from "@/features/standings/dto/standing-dto";
 import { StandingRepository } from "@/features/standings/repositories/standing-repository";
 import { TeamRepository } from "@/features/teams/repositories/team-repository";
+import type { ServerSupabaseClient } from "@/lib/supabase/types";
 
 export const StandingService = {
-  async getLeagueStandings(
-    leagueId: string,
-    seasonId: string
-  ): Promise<StandingDTO[]> {
-    const [teams, standings] = await Promise.all([
-      TeamRepository.getByLeague(leagueId),
-      StandingRepository.getByLeagueAndSeason(leagueId, seasonId),
-    ]);
+ async getLeagueStandings(
+  leagueId: string,
+  seasonId: string,
+  client?: ServerSupabaseClient,
+): Promise<StandingDTO[]> {
+   const [teams, standings] = await Promise.all([
+  TeamRepository.getByLeague(
+    leagueId,
+    client,
+  ),
+
+  StandingRepository.getByLeagueAndSeason(
+    leagueId,
+    seasonId,
+    client,
+  ),
+]);
 
     return teams.map((team) => {
       const standing = standings.find(
