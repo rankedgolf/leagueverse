@@ -37,14 +37,6 @@ export function FreeAgencyControlCenter({
   const [errorMessage, setErrorMessage] =
     useState<string | null>(null);
 
-  const [frequencyHours, setFrequencyHours] =
-    useState(
-      String(
-        period.decision_frequency_hours ??
-          24,
-      ),
-    );
-
   async function runAction(
     action:
       | "pause"
@@ -129,36 +121,6 @@ export function FreeAgencyControlCenter({
         error instanceof Error
           ? error.message
           : "Unable to process Free Agency.",
-      );
-    } finally {
-      setIsWorking(false);
-    }
-  }
-
-  async function handleFrequencySave() {
-    setIsWorking(true);
-    setMessage(null);
-    setErrorMessage(null);
-
-    try {
-      await updateFreeAgencyPeriod({
-        leagueId,
-        periodId: period.id,
-        action: "frequency",
-        frequencyHours:
-          Number(frequencyHours),
-      });
-
-      setMessage(
-        "Decision cadence updated.",
-      );
-
-      router.refresh();
-    } catch (error) {
-      setErrorMessage(
-        error instanceof Error
-          ? error.message
-          : "Unable to update the decision cadence.",
       );
     } finally {
       setIsWorking(false);
@@ -261,51 +223,10 @@ export function FreeAgencyControlCenter({
           )}
         />
 
-        <div className="rounded-lg border border-slate-800 bg-slate-950 p-3 sm:col-span-2">
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-            Decision Cadence
-          </p>
-
-          <div className="mt-2 flex flex-wrap items-center gap-2">
-            <select
-              value={frequencyHours}
-              onChange={(event) =>
-                setFrequencyHours(
-                  event.target.value,
-                )
-              }
-              disabled={isWorking}
-              className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white"
-            >
-              <option value="12">
-                Every 12 hours
-              </option>
-              <option value="24">
-                Every 24 hours
-              </option>
-              <option value="48">
-                Every 48 hours
-              </option>
-              <option value="72">
-                Every 72 hours
-              </option>
-              <option value="168">
-                Weekly
-              </option>
-            </select>
-
-            <button
-              type="button"
-              onClick={
-                handleFrequencySave
-              }
-              disabled={isWorking}
-              className="rounded-lg border border-slate-700 px-3 py-2 text-sm font-semibold text-slate-300 hover:bg-slate-800 disabled:opacity-50"
-            >
-              Save Cadence
-            </button>
-          </div>
-        </div>
+        <InfoCard
+          label="Automated Decision Cycle"
+          value="Daily"
+        />
       </div>
 
       <div className="mt-5 border-t border-slate-800 pt-4">

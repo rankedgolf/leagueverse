@@ -16,12 +16,6 @@ type UpdateFreeAgencyPeriodInput =
       periodId: string;
       action: "pause" | "resume" | "close";
     }
-  | {
-      leagueId: string;
-      periodId: string;
-      action: "frequency";
-      frequencyHours: number;
-    };
 
 export async function updateFreeAgencyPeriod(
   input: UpdateFreeAgencyPeriodInput,
@@ -30,21 +24,6 @@ export async function updateFreeAgencyPeriod(
     leagueId: input.leagueId,
     permission: Permissions.ManageLeague,
   });
-
-  if (input.action === "frequency") {
-    const result =
-      await FreeAgencyPeriodService.updateDecisionFrequency({
-        leagueId: input.leagueId,
-        periodId: input.periodId,
-        frequencyHours: input.frequencyHours,
-      });
-
-    revalidatePath(
-      `/leagues/${input.leagueId}/free-agency`,
-    );
-
-    return result;
-  }
 
   const statusByAction: Record<
     "pause" | "resume" | "close",
