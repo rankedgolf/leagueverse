@@ -5,6 +5,9 @@ import { PlayerService } from "@/features/players/services/player-service";
 
 import { AssignExistingPlayerForm } from "@/features/rosters/components/assign-existing-player-form";
 import { RemoveRosterPlayerButton } from "@/features/rosters/components/remove-roster-player-button";
+import { ReleasePlayerButton } from "@/features/releases/components/release-player-button";
+import { FranchiseTagButton } from "@/features/franchise-tags/components/franchise-tag-button";
+import { LeagueOperationService } from "@/features/league-operations/services/league-operation-service";
 
 type RostersPageProps = {
   params: Promise<{
@@ -63,21 +66,28 @@ export default async function RostersPage({
   }
 
   const [
-    teams,
-    players,
-    rosterPlayers,
-  ] = await Promise.all([
-    TeamRepository.getByLeague(
-      leagueId,
-    ),
+  teams,
+  players,
+  rosterPlayers,
+  isFranchiseTagWindowOpen,
+] = await Promise.all([
+  TeamRepository.getByLeague(
+    leagueId,
+  ),
 
-    PlayerService.getPlayers(),
+  PlayerService.getPlayers(),
 
-    RosterService.getLeagueRosterPlayers(
-      leagueId,
-      activeSeason.id,
-    ),
-  ]);
+  RosterService.getLeagueRosterPlayers(
+    leagueId,
+    activeSeason.id,
+  ),
+
+  LeagueOperationService.isPhaseOpen({
+    leagueId,
+    seasonId: activeSeason.id,
+    phase: "franchise_tag",
+  }),
+]);
 
   return (
     <div className="space-y-6">
@@ -366,19 +376,48 @@ export default async function RostersPage({
                       }
                     </td>
 
-                    <td className="px-4 py-3 text-right">
-                      <RemoveRosterPlayerButton
-                        leagueId={
-                          leagueId
-                        }
-                        rosterId={
-                          player.rosterId
-                        }
-                        playerName={
-                          player.playerName
-                        }
-                      />
-                    </td>
+<td className="px-4 py-3 text-right">
+  {player.contract ? (
+    (() => {
+      const isTagEligible =
+  isFranchiseTagWindowOpen &&
+  player.contract.endsSeasonId ===
+    activeSeason.id;
+
+      return (
+        <div className="flex flex-col items-end gap-2">
+          {isTagEligible ? (
+            <FranchiseTagButton
+              leagueId={leagueId}
+              contractId={
+                player.contract.contractId
+              }
+              playerName={
+                player.playerName
+              }
+            />
+          ) : null}
+
+          <ReleasePlayerButton
+            leagueId={leagueId}
+            contractId={
+              player.contract.contractId
+            }
+            playerName={
+              player.playerName
+            }
+          />
+        </div>
+      );
+    })()
+  ) : (
+    <RemoveRosterPlayerButton
+      leagueId={leagueId}
+      rosterId={player.rosterId}
+      playerName={player.playerName}
+    />
+  )}
+</td>
                   </tr>
                 ),
               )

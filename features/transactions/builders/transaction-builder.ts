@@ -1,6 +1,7 @@
 import type {
   BuiltTransaction,
   FreeAgentSigningTransactionBuilderInput,
+  PlayerReleaseTransactionBuilderInput,
   TradeDraftPickAssetInput,
   TradePlayerAssetInput,
   TradeTransactionBuilderInput,
@@ -194,6 +195,129 @@ export const TransactionBuilder = {
     items: [item],
   };
 },
+
+playerRelease(
+  input: PlayerReleaseTransactionBuilderInput,
+): BuiltTransaction {
+  if (!input.contractId) {
+    throw new Error(
+      "A player release requires an active contract.",
+    );
+  }
+
+  const item: CreateTransactionItemInput = {
+    leagueId:
+      input.leagueId,
+
+    fromTeamId:
+      input.teamId,
+
+    toTeamId:
+      null,
+
+    playerId:
+      input.playerId,
+
+    leaguePlayerId:
+      input.leaguePlayerId,
+
+    contractId:
+      input.contractId,
+
+    draftPickId:
+      null,
+
+    itemType:
+      "player",
+
+    rosterAction:
+      "drop",
+
+    contractAction:
+      "terminate",
+
+    salaryBefore:
+      input.currentCapHit,
+
+    salaryAfter:
+      0,
+
+    metadata: {
+      playerName:
+        input.playerName ?? null,
+
+      deadCapSchedule:
+        input.deadCapSchedule,
+
+      totalDeadCap:
+        input.totalDeadCap,
+
+      totalCapSavings:
+        input.totalCapSavings,
+    },
+  };
+
+  const transaction: CreateTransactionInput = {
+    leagueId:
+      input.leagueId,
+
+    seasonId:
+      input.seasonId,
+
+    type:
+      "player_release",
+
+    status:
+      "pending",
+
+    source:
+      "manual",
+
+    provider:
+      null,
+
+    providerTransactionId:
+      null,
+
+    occurredAt:
+      new Date().toISOString(),
+
+    createdBy:
+      input.createdBy,
+
+    notes:
+      input.notes ??
+      `${input.playerName ?? "Player"} release submitted.`,
+
+    metadata: {
+      teamId:
+        input.teamId,
+
+      leaguePlayerId:
+        input.leaguePlayerId,
+
+      contractId:
+        input.contractId,
+
+      totalDeadCap:
+        input.totalDeadCap,
+
+      totalCapSavings:
+        input.totalCapSavings,
+
+      createdThrough:
+        "player_release",
+    },
+
+    items: [item],
+  };
+
+  return {
+    transaction,
+    items: [item],
+  };
+},
+
   trade(
     input: TradeTransactionBuilderInput,
   ): BuiltTransaction {

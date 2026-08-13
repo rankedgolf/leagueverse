@@ -84,6 +84,34 @@ export type FreeAgentSigningTransactionBuilderInput = {
   notes?: string | null;
 };
 
+export type PlayerReleaseTransactionBuilderInput = {
+  leagueId: string;
+  seasonId: string;
+
+  createdBy: string;
+
+  teamId: string;
+
+  playerId: string;
+  leaguePlayerId: string;
+  contractId: string;
+
+  playerName?: string | null;
+
+  currentCapHit: number;
+
+  deadCapSchedule: Array<{
+    seasonId: string;
+    seasonYear: number;
+    amount: number;
+  }>;
+
+  totalDeadCap: number;
+  totalCapSavings: number;
+
+  notes?: string | null;
+};
+
 export type BuiltTransaction = {
   transaction: CreateTransactionInput;
   items: CreateTransactionItemInput[];

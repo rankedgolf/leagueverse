@@ -60,6 +60,38 @@ export const SalaryCapRepository = {
     return data ?? [];
   },
 
+  async getDeadCapData(leagueId: string) {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("dead_cap_charges")
+    .select(`
+      id,
+      league_id,
+      team_id,
+      season_id,
+      league_player_id,
+      contract_id,
+      transaction_id,
+      amount,
+      reason,
+      notes,
+      seasons (
+        id,
+        name,
+        year,
+        is_active
+      )
+    `)
+    .eq("league_id", leagueId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data ?? [];
+},
+
   async getTeamsByLeague(leagueId: string) {
     const supabase = await createClient();
 

@@ -17,6 +17,7 @@ const navItems = [
   { label: "Standings", href: "standings" },
   { label: "Contracts", href: "contracts" },
   { label: "Salary Cap", href: "salary-cap" },
+  { label: "League Operations", href: "operations" },
   { label: "Free Agency", href: "free-agency" },
   { label: "Transactions", href: "transactions" },
   { label: "Draft", href: "draft" },

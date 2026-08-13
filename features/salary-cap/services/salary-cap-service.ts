@@ -72,19 +72,21 @@ export const SalaryCapService = {
   async getLeagueSalaryCap(
     leagueId: string
   ): Promise<LeagueSalaryCapDTO> {
-    const [
-      settings,
-      activeSeason,
-      teams,
-      capRows,
-      rosterRows,
-    ] = await Promise.all([
-      ContractSettingsService.getByLeague(leagueId),
-      SeasonService.getActiveSeasonByLeague(leagueId),
-      SalaryCapRepository.getTeamsByLeague(leagueId),
-      SalaryCapRepository.getLeagueCapData(leagueId),
-      SalaryCapRepository.getRosterPlayerCounts(leagueId),
-    ]);
+   const [
+  settings,
+  activeSeason,
+  teams,
+  capRows,
+  deadCapRows,
+  rosterRows,
+] = await Promise.all([
+  ContractSettingsService.getByLeague(leagueId),
+  SeasonService.getActiveSeasonByLeague(leagueId),
+  SalaryCapRepository.getTeamsByLeague(leagueId),
+  SalaryCapRepository.getLeagueCapData(leagueId),
+  SalaryCapRepository.getDeadCapData(leagueId),
+  SalaryCapRepository.getRosterPlayerCounts(leagueId),
+]);
 
     if (!activeSeason) {
       throw new Error(
@@ -133,21 +135,46 @@ export const SalaryCapService = {
           return contract?.team_id === team.id;
         });
 
+        const teamDeadCapRows =
+  deadCapRows.filter(
+    (row) =>
+      row.team_id === team.id,
+  );
+
         const futureCommitments: TeamSeasonCapDTO[] =
           orderedSeasons.map((season) => {
-            const committed = roundCurrency(
-              teamCapRows
-                .filter(
-                  (row) => row.season_id === season.id
-                )
-                .reduce(
-                  (total, row) =>
-                    total +
-                    Number(row.salary ?? 0) +
-                    Number(row.bonus ?? 0),
-                  0
-                )
-            );
+          const activeContractCommitment =
+  teamCapRows
+    .filter(
+      (row) =>
+        row.season_id === season.id,
+    )
+    .reduce(
+      (total, row) =>
+        total +
+        Number(row.salary ?? 0) +
+        Number(row.bonus ?? 0),
+      0,
+    );
+
+const deadCapCommitment =
+  teamDeadCapRows
+    .filter(
+      (row) =>
+        row.season_id === season.id,
+    )
+    .reduce(
+      (total, row) =>
+        total +
+        Number(row.amount ?? 0),
+      0,
+    );
+
+const committed =
+  roundCurrency(
+    activeContractCommitment +
+      deadCapCommitment,
+  );
 
             return {
               seasonId: season.id,
