@@ -5,6 +5,9 @@ import { createClient } from "@/lib/supabase/server";
 import { DraftPickRepository } from "@/features/draft-picks/repositories/draft-pick-repository";
 import { TeamRepository } from "@/features/teams/repositories/team-repository";
 
+import { LeagueEntitlementService } from "@/features/billing/services/league-entitlement-service";
+import { PremiumFeatureLocked } from "@/features/billing/components/premium-feature-locked";
+
 type DraftPageProps = {
   params: Promise<{
     leagueId: string;
@@ -68,10 +71,37 @@ export default async function DraftPage({
   params,
   searchParams,
 }: DraftPageProps) {
-  const { leagueId } = await params;
-  const filters = await searchParams;
+  const { leagueId } =
+    await params;
 
-  const supabase = await createClient();
+  /*
+   * ------------------------------------------------------------
+   * PREMIUM ACCESS
+   * ------------------------------------------------------------
+   */
+  const entitlement =
+    await LeagueEntitlementService.getStatus(
+      leagueId,
+    );
+
+  if (!entitlement.isActivated) {
+    return (
+      <PremiumFeatureLocked
+        leagueId={leagueId}
+      />
+    );
+  }
+
+  /*
+   * ------------------------------------------------------------
+   * PAGE DATA
+   * ------------------------------------------------------------
+   */
+  const filters =
+    await searchParams;
+
+  const supabase =
+    await createClient();
 
   const [
     draftPicks,

@@ -44,6 +44,58 @@ export const FreeAgencyPeriodService = {
     return data ?? null;
   },
 
+  async getBySeason(params: {
+  leagueId: string;
+  seasonId: string;
+}) {
+  const supabase =
+    await createClient();
+
+  const { data, error } =
+    await supabase
+      .from("free_agency_periods")
+      .select(`
+        id,
+        league_id,
+        season_id,
+        name,
+        status,
+        opens_at,
+        closes_at,
+        decisions_begin_at,
+        decisions_end_at,
+        decision_frequency_hours,
+        last_decision_at,
+        next_decision_at,
+        created_at,
+        updated_at
+      `)
+      .eq(
+        "league_id",
+        params.leagueId,
+      )
+      .eq(
+        "season_id",
+        params.seasonId,
+      )
+      .order(
+        "created_at",
+        {
+          ascending: false,
+        },
+      )
+      .limit(1)
+      .maybeSingle();
+
+  if (error) {
+    throw new Error(
+      error.message,
+    );
+  }
+
+  return data ?? null;
+},
+
   async updateStatus(params: {
     leagueId: string;
     periodId: string;

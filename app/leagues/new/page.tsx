@@ -1,52 +1,72 @@
-import { createTeam } from "@/features/teams/actions/create-team";
+import { createLeague } from "@/features/leagues/actions/create-league";
 
-type NewTeamPageProps = {
-  params: Promise<{
-    leagueId: string;
-  }>;
-};
-
-export default async function NewTeamPage({ params }: NewTeamPageProps) {
-  const { leagueId } = await params;
-
-  async function createTeamForLeague(formData: FormData) {
-    "use server";
-    await createTeam(leagueId, formData);
-  }
-
+export default function NewLeaguePage() {
   return (
-    <div className="mx-auto max-w-2xl">
-      <p className="text-sm uppercase tracking-wide text-slate-400">Teams</p>
-      <h1 className="mt-2 text-4xl font-bold">Add Team</h1>
+    <main className="min-h-screen bg-slate-950 px-6 py-16 text-white">
+      <div className="mx-auto max-w-2xl">
+        <p className="text-sm font-semibold uppercase tracking-[0.25em] text-violet-400">
+          Create League
+        </p>
 
-      <form
-        action={createTeamForLeague}
-        className="mt-8 space-y-5 rounded-2xl border border-slate-800 bg-slate-900 p-8"
-      >
-        <input
-          name="name"
-          required
-          placeholder="Springfield Sharks"
-          className="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 text-white"
-        />
+        <h1 className="mt-3 text-4xl font-bold">
+          Start Your LeagueVerse League
+        </h1>
 
-        <input
-          name="nickname"
-          placeholder="Sharks"
-          className="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 text-white"
-        />
+        <p className="mt-3 max-w-xl text-sm leading-6 text-slate-400">
+          Create your league, then import an existing dynasty league or
+          build your front office from scratch.
+        </p>
 
-        <input
-          name="abbreviation"
-          placeholder="SHK"
-          maxLength={5}
-          className="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 text-white"
-        />
+        <form
+          action={createLeague}
+          className="mt-8 space-y-6 rounded-2xl border border-slate-800 bg-slate-900 p-8"
+        >
+          <div>
+            <label
+              htmlFor="name"
+              className="text-sm font-semibold text-white"
+            >
+              League Name
+            </label>
 
-        <button className="w-full rounded-lg bg-white px-4 py-3 font-semibold text-slate-950">
-          Create Team
-        </button>
-      </form>
-    </div>
+            <input
+              id="name"
+              name="name"
+              required
+              placeholder="LeagueVerse Demo League"
+              className="mt-2 w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 text-white placeholder:text-slate-600"
+            />
+          </div>
+
+          <div>
+            <label
+              htmlFor="sport"
+              className="text-sm font-semibold text-white"
+            >
+              Sport
+            </label>
+
+            <select
+              id="sport"
+              name="sport"
+              required
+              defaultValue="football"
+              className="mt-2 w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 text-white"
+            >
+              <option value="football">
+                Football
+              </option>
+            </select>
+          </div>
+
+          <button
+            type="submit"
+            className="w-full rounded-lg bg-violet-700 px-5 py-3 font-semibold text-white hover:bg-violet-600"
+          >
+            Create League
+          </button>
+        </form>
+      </div>
+    </main>
   );
 }

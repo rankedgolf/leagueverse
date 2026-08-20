@@ -10,6 +10,12 @@ export type LeagueDashboardDTO = {
     isCommissioner: boolean;
   };
 
+  billing: {
+    canManageBilling: boolean;
+    isActivated: boolean;
+    seasonYear: number | null;
+  };
+
   stats: {
     teams: number;
     members: number;

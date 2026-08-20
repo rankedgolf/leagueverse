@@ -202,14 +202,25 @@ export const FranchiseTagPreviewService = {
         "This team has already used its franchise tag for this season.";
     }
 
-    if (
-      playerTagHistory.length > 0
-    ) {
-      tagAvailable = false;
+   const wasTaggedPreviousSeason =
+  playerTagHistory.some((usage) => {
+    const seasonRelation =
+      Array.isArray(usage.seasons)
+        ? usage.seasons[0]
+        : usage.seasons;
 
-      unavailableReason =
-        "This player has already received a franchise tag and must enter free agency after the tagged season.";
-    }
+    return (
+      Number(seasonRelation?.year ?? 0) ===
+      expiringSeasonYear
+    );
+  });
+
+if (wasTaggedPreviousSeason) {
+  tagAvailable = false;
+
+  unavailableReason =
+    "This player was franchise tagged last season and cannot be tagged in consecutive seasons.";
+}
 
     const previousCapHit =
       roundCurrency(

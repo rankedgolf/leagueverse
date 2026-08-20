@@ -1,6 +1,9 @@
 import { SalaryCapService } from "@/features/salary-cap/services/salary-cap-service";
 import { TeamSalaryCapTable } from "@/features/salary-cap/components/team-salary-cap-table";
 
+import { LeagueEntitlementService } from "@/features/billing/services/league-entitlement-service";
+import { PremiumFeatureLocked } from "@/features/billing/components/premium-feature-locked";
+
 type SalaryCapPageProps = {
   params: Promise<{
     leagueId: string;
@@ -20,20 +23,43 @@ export default async function SalaryCapPage({
 }: SalaryCapPageProps) {
   const { leagueId } = await params;
 
-  const salaryCap =
-    await SalaryCapService.getLeagueSalaryCap(leagueId);
+  const entitlement =
+    await LeagueEntitlementService.getStatus(
+      leagueId,
+    );
 
-  const teamsOverCap = salaryCap.teams.filter(
-    (team) => team.currentCapSpace < 0
-  ).length;
+  if (!entitlement.isActivated) {
+    return (
+      <PremiumFeatureLocked
+        leagueId={leagueId}
+      />
+    );
+  }
+
+  const salaryCap =
+    await SalaryCapService.getLeagueSalaryCap(
+      leagueId,
+    );
+
+  const teamsOverCap =
+    salaryCap.teams.filter(
+      (team) =>
+        team.currentCapSpace < 0,
+    ).length;
 
   const teamsWithFutureRisk =
     salaryCap.teams.filter(
-      (team) => team.capHealth !== "healthy"
+      (team) =>
+        team.capHealth !==
+        "healthy",
     ).length;
 
-  const sortedTeams = [...salaryCap.teams].sort(
-    (a, b) => b.currentCapSpace - a.currentCapSpace
+  const sortedTeams = [
+    ...salaryCap.teams,
+  ].sort(
+    (a, b) =>
+      b.currentCapSpace -
+      a.currentCapSpace,
   );
 
   return (
@@ -52,20 +78,25 @@ export default async function SalaryCapPage({
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <SummaryCard
           label="League Salary Cap"
-          value={formatCurrency(salaryCap.salaryCap)}
+          value={formatCurrency(
+            salaryCap.salaryCap,
+          )}
           detail="Per team"
         />
 
         <SummaryCard
           label="Future Cap Risks"
-          value={String(teamsWithFutureRisk)}
+          value={String(
+            teamsWithFutureRisk,
+          )}
           detail={
             teamsOverCap > 0
               ? `${teamsOverCap} currently over cap`
               : "No teams currently over cap"
           }
           valueClassName={
-            teamsWithFutureRisk > 0
+            teamsWithFutureRisk >
+            0
               ? "text-amber-400"
               : "text-emerald-400"
           }
@@ -86,7 +117,9 @@ export default async function SalaryCapPage({
 
         <TeamSalaryCapTable
           teams={sortedTeams}
-          activeSeasonId={salaryCap.currentSeasonId}
+          activeSeasonId={
+            salaryCap.currentSeasonId
+          }
         />
       </section>
     </div>

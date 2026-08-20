@@ -1,72 +1,189 @@
+import { createClient } from "@/lib/supabase/server";
+
 import { LeagueRepository } from "../repositories/league-repository";
+
 import { TeamService } from "@/features/teams/services/team-service";
+
 import type { LeagueDashboardDTO } from "../dto/league-dashboard-dto";
 
 export const LeagueService = {
   async getDashboard(
     leagueId: string,
-    userId: string
+    userId: string,
   ): Promise<LeagueDashboardDTO | null> {
-    const membership = await LeagueRepository.getMembership(leagueId, userId);
+    const membership =
+      await LeagueRepository.getMembership(
+        leagueId,
+        userId,
+      );
 
     if (!membership) {
       return null;
     }
 
-    const league = await LeagueRepository.getById(leagueId);
+    const league =
+      await LeagueRepository.getById(
+        leagueId,
+      );
 
     if (!league) {
       return null;
     }
 
-    const season = league.current_season_id
-      ? await LeagueRepository.getSeasonById(league.current_season_id)
-      : null;
+    const season =
+      league.current_season_id
+        ? await LeagueRepository.getSeasonById(
+            league.current_season_id,
+          )
+        : null;
 
-    const teams = await TeamService.getLeagueTeams(leagueId);
-    const ownersAssigned = teams.filter((team) => team.owner).length;
-    const memberCount = await LeagueRepository.getMemberCount(leagueId);
+    const teams =
+      await TeamService.getLeagueTeams(
+        leagueId,
+      );
+
+    const ownersAssigned =
+      teams.filter(
+        (team) => team.owner,
+      ).length;
+
+    const memberCount =
+      await LeagueRepository.getMemberCount(
+        leagueId,
+      );
+
     const hasSalaryCapSettings =
       await LeagueRepository.hasSalaryCapSettings(
         leagueId,
-        league.current_season_id
+        league.current_season_id,
       );
 
-    const isCommissioner = ["owner", "commissioner", "co_commissioner"].includes(
-      membership.role
+    const isCommissioner = [
+      "owner",
+      "commissioner",
+      "co_commissioner",
+    ].includes(
+      membership.role,
     );
+
+    const seasonYear =
+      season?.year ?? null;
+
+    let isActivated =
+      false;
+
+    if (seasonYear) {
+      const supabase =
+        await createClient();
+
+      const {
+        data: entitlement,
+        error:
+          entitlementError,
+      } =
+        await supabase
+          .from(
+            "league_entitlements",
+          )
+          .select(`
+            id,
+            status
+          `)
+          .eq(
+            "league_id",
+            leagueId,
+          )
+          .eq(
+            "season_year",
+            seasonYear,
+          )
+          .maybeSingle();
+
+      if (
+        entitlementError
+      ) {
+        throw new Error(
+          entitlementError.message,
+        );
+      }
+
+      isActivated =
+        entitlement?.status ===
+        "paid";
+    }
 
     return {
       league: {
-        id: league.id,
-        name: league.name,
-        seasonName: season?.name || null,
+        id:
+          league.id,
+
+        name:
+          league.name,
+
+        seasonName:
+          season?.name ||
+          null,
       },
 
       membership: {
-        role: membership.role,
+        role:
+          membership.role,
+
         isCommissioner,
       },
 
+      billing: {
+        canManageBilling:
+          isCommissioner,
+
+        isActivated,
+
+        seasonYear,
+      },
+
       stats: {
-        teams: teams.length,
-        members: memberCount,
+        teams:
+          teams.length,
+
+        members:
+          memberCount,
+
         ownersAssigned,
       },
 
       checklist: {
-        leagueCreated: true,
-        hasTeams: teams.length > 0,
-        hasMembers: memberCount > 1,
-        importedLeague: Boolean(league.provider_primary),
-        salaryCapConfigured: hasSalaryCapSettings,
+        leagueCreated:
+          true,
+
+        hasTeams:
+          teams.length >
+          0,
+
+        hasMembers:
+          memberCount >
+          1,
+
+        importedLeague:
+          Boolean(
+            league.provider_primary,
+          ),
+
+        salaryCapConfigured:
+          hasSalaryCapSettings,
       },
 
       quickActions: {
-        addTeam: `/leagues/${leagueId}/teams/new`,
-        inviteMembers: `/leagues/${leagueId}/members`,
-        importLeague: `/leagues/${leagueId}/import`,
-        settings: `/leagues/${leagueId}/settings`,
+        addTeam:
+          `/leagues/${leagueId}/teams/new`,
+
+        inviteMembers:
+          `/leagues/${leagueId}/members`,
+
+        importLeague:
+          `/leagues/${leagueId}/import`,
+
+        settings:
+          `/leagues/${leagueId}/settings`,
       },
     };
   },

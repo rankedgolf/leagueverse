@@ -2,13 +2,16 @@ import Link from "next/link";
 
 import { createClient } from "@/lib/supabase/server";
 
+import { LeagueEntitlementService } from "@/features/billing/services/league-entitlement-service";
+import { PremiumFeatureLocked } from "@/features/billing/components/premium-feature-locked";
+
 import { FreeAgencyMarketService } from "@/features/free-agency/services/free-agency-market-service";
 import { FreeAgencyOfferService } from "@/features/free-agency/services/free-agency-offer-service";
+import { FreeAgencyPeriodService } from "@/features/free-agency/services/free-agency-period-service";
 
 import { InitializeFreeAgentMarketButton } from "@/features/free-agency/components/initialize-free-agent-market-button";
 import { MakeFreeAgentOfferForm } from "@/features/free-agency/components/make-free-agent-offer-form";
 import { MyFreeAgencyOffers } from "@/features/free-agency/components/my-free-agency-offers";
-import { FreeAgencyPeriodService } from "@/features/free-agency/services/free-agency-period-service";
 import { FreeAgencyControlCenter } from "@/features/free-agency/components/free-agency-control-center";
 
 type FreeAgencyPageProps = {
@@ -26,14 +29,42 @@ export default async function FreeAgencyPage({
   params,
   searchParams,
 }: FreeAgencyPageProps) {
-  const { leagueId } = await params;
-  const filters = await searchParams;
+  const { leagueId } =
+    await params;
 
-  const supabase = await createClient();
+  /*
+   * ------------------------------------------------------------
+   * PREMIUM ACCESS
+   * ------------------------------------------------------------
+   */
+  const entitlement =
+    await LeagueEntitlementService.getStatus(
+      leagueId,
+    );
+
+  if (!entitlement.isActivated) {
+    return (
+      <PremiumFeatureLocked
+        leagueId={leagueId}
+      />
+    );
+  }
+
+  /*
+   * ------------------------------------------------------------
+   * PAGE DATA
+   * ------------------------------------------------------------
+   */
+  const filters =
+    await searchParams;
+
+  const supabase =
+    await createClient();
 
   const {
     data: { user },
-  } = await supabase.auth.getUser();
+  } =
+    await supabase.auth.getUser();
 
   const [
     freeAgents,
@@ -47,39 +78,50 @@ export default async function FreeAgencyPage({
     user
       ? FreeAgencyOfferService.getMyOffers({
           leagueId,
-          userId: user.id,
+          userId:
+            user.id,
         })
       : Promise.resolve({
           team: null,
           offers: [],
         }),
 
-   FreeAgencyPeriodService.getCurrentPeriod(
-  leagueId,
-),
+    FreeAgencyPeriodService.getCurrentPeriod(
+      leagueId,
+    ),
   ]);
 
+  /*
+   * ------------------------------------------------------------
+   * FILTERS
+   * ------------------------------------------------------------
+   */
   const selectedPosition =
     filters.position ?? "";
 
   const searchTerm =
-    filters.q?.trim().toLowerCase() ?? "";
+    filters.q
+      ?.trim()
+      .toLowerCase() ?? "";
 
-  const positions = Array.from(
-    new Set(
-      freeAgents
-        .map(
-          (player) =>
-            player.position,
-        )
-        .filter(
-          (
-            position,
-          ): position is string =>
-            Boolean(position),
-        ),
-    ),
-  ).sort();
+  const positions =
+    Array.from(
+      new Set(
+        freeAgents
+          .map(
+            (player) =>
+              player.position,
+          )
+          .filter(
+            (
+              position,
+            ): position is string =>
+              Boolean(
+                position,
+              ),
+          ),
+      ),
+    ).sort();
 
   const filteredFreeAgents =
     freeAgents.filter(
@@ -110,7 +152,8 @@ export default async function FreeAgencyPage({
   const playersWithOffers =
     freeAgents.filter(
       (player) =>
-        player.offerCount > 0,
+        player.offerCount >
+        0,
     ).length;
 
   const activeOfferCount =
@@ -140,15 +183,21 @@ export default async function FreeAgencyPage({
 
         <div className="mt-4">
           <InitializeFreeAgentMarketButton
-            leagueId={leagueId}
+            leagueId={
+              leagueId
+            }
           />
 
           {activePeriod ? (
-  <FreeAgencyControlCenter
-    leagueId={leagueId}
-    period={activePeriod}
-  />
-) : null}
+            <FreeAgencyControlCenter
+              leagueId={
+                leagueId
+              }
+              period={
+                activePeriod
+              }
+            />
+          ) : null}
         </div>
       </div>
 
@@ -168,7 +217,8 @@ export default async function FreeAgencyPage({
           )}
           detail="Active market interest"
           valueClassName={
-            playersWithOffers > 0
+            playersWithOffers >
+            0
               ? "text-emerald-400"
               : "text-white"
           }
@@ -181,7 +231,8 @@ export default async function FreeAgencyPage({
           )}
           detail="Outstanding contract offers"
           valueClassName={
-            activeOfferCount > 0
+            activeOfferCount >
+            0
               ? "text-emerald-400"
               : "text-white"
           }
@@ -189,9 +240,12 @@ export default async function FreeAgencyPage({
       </section>
 
       <MyFreeAgencyOffers
-        leagueId={leagueId}
+        leagueId={
+          leagueId
+        }
         teamName={
-          myOffersResult.team?.name ??
+          myOffersResult
+            .team?.name ??
           null
         }
         offers={
@@ -213,7 +267,8 @@ export default async function FreeAgencyPage({
               type="search"
               name="q"
               defaultValue={
-                filters.q ?? ""
+                filters.q ??
+                ""
               }
               placeholder="Search players..."
               className="mt-2 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white outline-none placeholder:text-slate-600 focus:border-emerald-600"
@@ -237,12 +292,20 @@ export default async function FreeAgencyPage({
               </option>
 
               {positions.map(
-                (position) => (
+                (
+                  position,
+                ) => (
                   <option
-                    key={position}
-                    value={position}
+                    key={
+                      position
+                    }
+                    value={
+                      position
+                    }
                   >
-                    {position}
+                    {
+                      position
+                    }
                   </option>
                 ),
               )}
@@ -274,15 +337,20 @@ export default async function FreeAgencyPage({
           </h2>
 
           <p className="mt-1 text-sm text-slate-400">
-            {filteredFreeAgents.length} player
-            {filteredFreeAgents.length === 1
+            {
+              filteredFreeAgents.length
+            }{" "}
+            player
+            {filteredFreeAgents.length ===
+            1
               ? ""
               : "s"}{" "}
             shown.
           </p>
         </div>
 
-        {filteredFreeAgents.length === 0 ? (
+        {filteredFreeAgents.length ===
+        0 ? (
           <div className="rounded-xl border border-slate-800 bg-slate-900 p-6 text-center">
             <p className="font-medium text-white">
               No free agents found
@@ -295,7 +363,9 @@ export default async function FreeAgencyPage({
         ) : (
           <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
             {filteredFreeAgents.map(
-              (player) => (
+              (
+                player,
+              ) => (
                 <article
                   key={
                     player.leaguePlayerId
@@ -305,12 +375,15 @@ export default async function FreeAgencyPage({
                   <div className="flex items-start justify-between gap-4">
                     <div>
                       <h3 className="text-lg font-semibold text-white">
-                        {player.name}
+                        {
+                          player.name
+                        }
                       </h3>
 
                       <p className="mt-1 text-sm text-slate-400">
                         {player.position ??
                           "—"}
+
                         {player.proTeam
                           ? ` · ${player.proTeam}`
                           : ""}
@@ -339,16 +412,23 @@ export default async function FreeAgencyPage({
                       Market Intelligence
                     </p>
 
-                    {player.personalityHints.length === 0 ? (
+                    {player
+                      .personalityHints
+                      .length ===
+                    0 ? (
                       <p className="mt-3 text-sm italic text-slate-500">
                         Market priorities are unclear.
                       </p>
                     ) : (
                       <div className="mt-3 space-y-2">
                         {player.personalityHints.map(
-                          (hint) => (
+                          (
+                            hint,
+                          ) => (
                             <div
-                              key={hint}
+                              key={
+                                hint
+                              }
                               className="flex items-start gap-2 text-sm text-slate-300"
                             >
                               <span className="mt-1 text-emerald-400">
@@ -356,7 +436,9 @@ export default async function FreeAgencyPage({
                               </span>
 
                               <span>
-                                {hint}
+                                {
+                                  hint
+                                }
                               </span>
                             </div>
                           ),
@@ -367,7 +449,9 @@ export default async function FreeAgencyPage({
 
                   <div className="mt-5 border-t border-slate-800 pt-4">
                     <MakeFreeAgentOfferForm
-                      leagueId={leagueId}
+                      leagueId={
+                        leagueId
+                      }
                       leaguePlayerId={
                         player.leaguePlayerId
                       }

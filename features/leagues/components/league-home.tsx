@@ -1,11 +1,16 @@
 import Link from "next/link";
+
 import type { LeagueDashboardDTO } from "../dto/league-dashboard-dto";
+
+import { ActivateLeagueButton } from "@/features/billing/components/activate-league-button";
 
 type Props = {
   dashboard: LeagueDashboardDTO;
 };
 
-export function LeagueHome({ dashboard }: Props) {
+export function LeagueHome({
+  dashboard,
+}: Props) {
   return (
     <div className="space-y-8">
       <div>
@@ -18,34 +23,98 @@ export function LeagueHome({ dashboard }: Props) {
         </h1>
 
         <p className="mt-2 text-slate-400">
-          {dashboard.league.seasonName || "No active season"}
+          {dashboard.league.seasonName ||
+            "No active season"}
         </p>
       </div>
+
+      {dashboard.billing.canManageBilling ? (
+        dashboard.billing.isActivated ? (
+          <section className="rounded-2xl border border-emerald-800 bg-emerald-950/20 p-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-400">
+              League Activation
+            </p>
+
+            <h2 className="mt-3 text-2xl font-bold text-white">
+              ✓ League Activated
+            </h2>
+
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-400">
+              This league is activated for the{" "}
+              {dashboard.billing
+                .seasonYear ??
+                "current"}{" "}
+              season.
+            </p>
+          </section>
+        ) : (
+          <section className="rounded-2xl border border-violet-800 bg-violet-950/20 p-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-violet-400">
+              League Activation
+            </p>
+
+            <h2 className="mt-3 text-2xl font-bold text-white">
+              Unlock the LeagueVerse Front Office
+            </h2>
+
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-400">
+              Activate this league for the full season and unlock
+              contracts, salary caps, free agency, rookie contracts,
+              franchise tags, and offseason operations.
+            </p>
+
+            <div className="mt-5">
+              <ActivateLeagueButton
+                leagueId={
+                  dashboard.league.id
+                }
+              />
+            </div>
+
+            <p className="mt-3 text-xs text-slate-500">
+              $19 activates this league for the{" "}
+              {dashboard.billing
+                .seasonYear ??
+                "current"}{" "}
+              season. Each LeagueVerse league requires its own pass.
+            </p>
+          </section>
+        )
+      ) : null}
 
       <section className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Teams"
-          value={dashboard.stats.teams}
+          value={
+            dashboard.stats.teams
+          }
         />
 
         <StatCard
-  title="Owners Assigned"
-  value={`${dashboard.stats.ownersAssigned} / ${dashboard.stats.teams}`}
-/>
+          title="Owners Assigned"
+          value={`${dashboard.stats.ownersAssigned} / ${dashboard.stats.teams}`}
+        />
 
         <StatCard
           title="Members"
-          value={dashboard.stats.members}
+          value={
+            dashboard.stats.members
+          }
         />
 
         <StatCard
           title="Your Role"
-          value={dashboard.membership.role}
+          value={
+            dashboard.membership.role
+          }
         />
 
         <StatCard
           title="Season"
-          value={dashboard.league.seasonName || "--"}
+          value={
+            dashboard.league
+              .seasonName || "--"
+          }
         />
       </section>
 
@@ -55,32 +124,45 @@ export function LeagueHome({ dashboard }: Props) {
         </h2>
 
         <div className="mt-4 space-y-3">
-
           <ChecklistItem
-            done={dashboard.checklist.leagueCreated}
+            done={
+              dashboard.checklist
+                .leagueCreated
+            }
             label="League Created"
           />
 
           <ChecklistItem
-            done={dashboard.checklist.hasTeams}
+            done={
+              dashboard.checklist
+                .hasTeams
+            }
             label="Add your first team"
           />
 
           <ChecklistItem
-            done={dashboard.checklist.hasMembers}
+            done={
+              dashboard.checklist
+                .hasMembers
+            }
             label="Invite members"
           />
 
           <ChecklistItem
-            done={dashboard.checklist.importedLeague}
+            done={
+              dashboard.checklist
+                .importedLeague
+            }
             label="Import fantasy league"
           />
 
           <ChecklistItem
-            done={dashboard.checklist.salaryCapConfigured}
+            done={
+              dashboard.checklist
+                .salaryCapConfigured
+            }
             label="Configure salary cap"
           />
-
         </div>
       </section>
 
@@ -90,28 +172,38 @@ export function LeagueHome({ dashboard }: Props) {
         </h2>
 
         <div className="mt-5 flex flex-wrap gap-3">
-
           <Link
-            href={dashboard.quickActions.addTeam}
+            href={
+              dashboard
+                .quickActions
+                .addTeam
+            }
             className="rounded-lg bg-white px-4 py-3 font-semibold text-slate-950"
           >
             Add Team
           </Link>
 
           <Link
-            href={dashboard.quickActions.inviteMembers}
+            href={
+              dashboard
+                .quickActions
+                .inviteMembers
+            }
             className="rounded-lg border border-slate-700 px-4 py-3"
           >
             Invite Members
           </Link>
 
           <Link
-            href={dashboard.quickActions.importLeague}
+            href={
+              dashboard
+                .quickActions
+                .importLeague
+            }
             className="rounded-lg border border-slate-700 px-4 py-3"
           >
             Import League
           </Link>
-
         </div>
       </section>
     </div>
@@ -147,9 +239,13 @@ function ChecklistItem({
 }) {
   return (
     <div className="flex items-center gap-3">
-      <span>{done ? "✅" : "⬜"}</span>
+      <span>
+        {done ? "✅" : "⬜"}
+      </span>
 
-      <span>{label}</span>
+      <span>
+        {label}
+      </span>
     </div>
   );
 }
