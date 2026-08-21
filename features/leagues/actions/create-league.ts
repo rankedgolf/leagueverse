@@ -53,15 +53,16 @@ export async function createLeague(formData: FormData) {
   const currentYear = new Date().getFullYear();
 
   const { data: season, error: seasonError } = await supabase
-    .from("seasons")
-    .insert({
-      league_id: league.id,
-      name: `${currentYear} Season`,
-      year: currentYear,
-      status: "active",
-    })
-    .select("id")
-    .single();
+  .from("seasons")
+  .insert({
+    league_id: league.id,
+    name: `${currentYear} Season`,
+    year: currentYear,
+    status: "active",
+    is_active: true,
+  })
+  .select("id")
+  .single();
 
   if (seasonError || !season) {
     throw new Error(seasonError?.message || "Failed to create season.");
